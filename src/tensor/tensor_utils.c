@@ -7,7 +7,7 @@
  * ...
  */
 void print_tensor(Tensor *pT) {
-    int dim = pT->dimension;
+    int dim = pT->dimensionality;
 
     /**
      * dim = 2
@@ -23,7 +23,7 @@ void print_tensor(Tensor *pT) {
     */
 
     for (int d = 0; d < dim; d++) {
-        for (int i = 0; i < pT->shape[d]; i++) {
+        for (Uint i = 0; i < pT->shape[d]; i++) {
             // looping through each dimension
         }
     } 

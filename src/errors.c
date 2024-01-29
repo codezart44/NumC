@@ -1,18 +1,7 @@
-// vector_errors.h
 
-#ifndef VECTOR_ERRORS_H
-#define VECTOR_ERRORS_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "config.h"
+#include "errors.h"
 
-#define EXIT_SUCCESS 0              // System exit was success (convention in C)
-#define EXIT_INCOMPATIBLE_SHAPE 1   // System exit due to vectors having different shapes (lengths)
-#define EXIT_MAX_LENGTH_EXCEEDED 2  // System exit due to vector input exceeding allowed `MAXIMUM_LENGTH`
-#define EXIT_DIV_BY_ZERO 3          // System exit due to undefined division by zero
-
-#define ERROR_MESSAGE_FORMAT 
 
 
 /**
@@ -94,7 +83,3 @@ void raise_error_div_by_zero(int line, const char* func, const char* file,
             message);
     exit(EXIT_DIV_BY_ZERO);
 }
-
-
-
-#endif

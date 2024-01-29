@@ -1,7 +1,8 @@
 //config.h
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
+
 
 #include <stdio.h>
 
@@ -14,4 +15,4 @@ typedef unsigned short Ushort;
 typedef unsigned long Ulong;
 
 
-#endif
+#endif  // _CONFIG_H_

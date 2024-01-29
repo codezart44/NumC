@@ -1,3 +1,43 @@
+
+## REPOSITORY STRUCTURE
+
+```
+NumC
+|
+|-- include/                            # header files .h
+|   |-- tensor/
+|   |   |-- tensor_factory.h
+|   |   |-- tensor_operations.h
+|   |   |-- tensor_utils.h
+|   |
+|   |-- config.h
+|   |-- errors.h
+|
+|-- src/                                # source files .c
+|   |-- tensor/
+|   |   |-- tensor_factory.c
+|   |   |-- tensor_operations.c
+|   |   |-- tensor_utils.c
+|   |
+|   |-- errors.c
+|   |-- main.c
+|
+|-- .gitignore
+|-- Makefile
+|-- README.md
+
+```
+
+
+
+
+
+
+
+
+
+## TENSOR OPERATIONS TO BE IMPLEMENTED
+
 1. Basic Element-wise Operations:
 - Addition, Subtraction, Multiplication, Division: Perform these operations element-wise between tensors or between a tensor and a scalar.
 - Unary operations: Functions like abs, sin, cos, exp, log, etc., applied element-wise.
