@@ -77,7 +77,7 @@ typedef struct Tensor
     Uint size;                              // The number of values `NumberValues` stored in the `.values` member
     Uint shape[MAXIMUM_DIMENSION];          // An array of the length the tensor values stretch in each dimension
     NumberType dtype;                       // The datatype of the numeric values stored in the `.values` member
-    Number values[MAXIMUM_LENGTH];     // The values contained by the tensor
+    Number values[MAXIMUM_LENGTH];          // The values contained by the tensor
 } Tensor;
 
 #endif //TENSOR_H

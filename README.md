@@ -22,13 +22,27 @@ NumC
 |   |-- errors.c
 |   |-- main.c
 |
+|-- tests/                              # test files .c
+|   |--tensor/
+|   |   |-- test_tensor_factory.c
+|   |   |-- test_tensor_operations.c
+|   |   |-- test_tensor_utils.c
+|   |
+|   |-- Makefile                        # Makefile for tests
+|   |-- test_main.c
+|
 |-- .gitignore
-|-- Makefile
+|-- Makefile                            # Makefile for compiling
 |-- README.md
 
 ```
 
-
+## MAKE SHORT COMMANDS
+```
+> make                  # compile files specified in makefile to executable
+> make clean            # remove files used to create executable
+> ./NumC                # execute program (main.c)
+```
 
 
 

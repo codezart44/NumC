@@ -20,6 +20,9 @@
         "array": "c",
         "initializer_list": "c",
         "unordered_map": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "tensor_utils.h": "c",
+        "math.h": "c",
+        "__locale": "c"
     }
 }
