@@ -3,8 +3,18 @@
 #ifndef TENSOR_OPERATIONS_H
 #define TENSOR_OPERATIONS_H
 
+
+typedef void (*BinaryOperation)(Tensor*, Tensor*, Tensor*);
+
 #include "tensor.h"
 
+//broadcasting values
+extern void _broadcast_init(Tensor *pT_1, Tensor *pT_2, Tensor *pT_res, Tensor *pT_bc1, Tensor *pT_bc2);
+extern void _tensor_broadcast_values(Tensor *pT_original, Tensor *pT_broadcast);
+extern void _tensor_init_broadcast_shape(Tensor *pT_1, Tensor *pT_2, Uint shape_bc[], Uint dim_bc);
+extern void _tensor_validate_axis_broadcasting(Uint t1_axis_len, Uint t2_axis_len);
+
+extern void _tensor_binary_operation(BinaryOperator operation, Tensor *pT_src1, Tensor *pT_src2, Tensor *pT_dest);
 
 //element wise operations (w/ broadcasting)
 extern void tensor_add(Tensor *pT_1, Tensor *pT_2, Tensor *pT_res);
@@ -77,7 +87,7 @@ extern void tensor_split(Tensor *pT_in, Tensor *pT_1, Tensor *pT_2);
  * 
  * Dimension Compatible when both
  *  - have same dimension
- *  - one have dimension 1
+ *  - one have multiple of other's dimension
  * 
  * A = [[10, 10, 10],
  *      [20, 20, 20],

@@ -1,6 +1,187 @@
 
-
 #include "tensor_utils.h"
+
+/**
+ * Debugging print for 1d arrays
+*/
+void print_1d_array(Uint* array, Uint size) {
+    printf("[ ");
+    for (Uint i = 0; i < size; i++) {
+        printf("%d ", array[i]);
+    }
+    printf("]\n");
+}
+
+/**
+ * Debugging print for 1d arrays
+*/
+void print_tensor_values_1d(Number values[], Uint size) {
+    printf("[ ");
+    for (Uint i = 0; i < size; i++) {
+        printf("%u ", values[i].tensor_uint);
+    }
+    printf("]\n");
+}
+
+
+
+
+
+/**
+ * @brief Print visual representation of tensor.
+ * Brackets denote delimiter for axis.
+ * 
+ * @param A pointer to a tensor `Tensor`
+ * @return void
+ */
+void print_tensor(Tensor *pT) {
+    Uint dim = pT->dim;
+
+    // create cumulative products of of first dim-1 number of shape values
+    // {a, b, c, d} -> {abc, bc, c, 1}  for any dimensionality
+    Uint cumulative_shape[dim];
+    cumulative_shape[dim-1] = 1;        // set last element (for columns) to 1
+
+    for (Uint axis_i = 0; axis_i < dim-1; axis_i++) {                       // for first dim-1 elements
+        cumulative_shape[axis_i] = 1;                                       // initialise cumulative product to 1
+        for (Uint prev_axis = axis_i; prev_axis < dim-1; prev_axis++) {     // cumulative product i is product of elements i to dim-2
+            cumulative_shape[axis_i] *= pT->shape[prev_axis];
+        }
+    }
+
+    const Uint cols = pT->shape[dim-1];
+    const Uint lines = cumulative_shape[0];     // number of lines to print
+    Uint num_brackets[lines];
+
+    // fill num_brackets array
+    for (Uint line = 0; line < lines; line++) {
+        for (Uint axis = 0; axis < dim; axis++) {
+            if (line % cumulative_shape[axis] == 0) {
+                num_brackets[line] = dim-axis;
+                break;                          // break at first found axis
+            }
+        }
+    }
+
+    // DEBUG PRINT
+    // print_1darray(num_brackets, lines);
+    // after building the list of number of brackets for each row printed...
+    // use symmetry of print pattern, ending brackets (on right side) follows same pattern as left ones but in opposite order
+
+    Uint spaces;
+    Uint left_brackets, right_brackets;
+    for (Uint line = 0; line < lines; line++) {
+        left_brackets = num_brackets[line];
+        spaces = dim-left_brackets;
+        right_brackets = num_brackets[lines-1-line];    // begin from other end
+        // line print
+        for (Uint s = 0; s < spaces; s++) printf(" ");
+        for (Uint lb = 0; lb < left_brackets; lb++) printf("[");
+        printf(" ");
+        for (Uint j = 0; j < cols; j++) {
+            switch (pT->dtype)
+            {
+            case TENSOR_SHORT:
+                printf("%hd ", pT->values[line*cols+j].tensor_short);
+                break;
+            case TENSOR_USHORT:
+                printf("%hu ", pT->values[line*cols+j].tensor_ushort);
+                break;
+            case TENSOR_INT:
+                printf("%d ", pT->values[line*cols+j].tensor_int);
+                break;
+            case TENSOR_UINT:
+                printf("%u ", pT->values[line*cols+j].tensor_uint);
+                break;
+            case TENSOR_LONG:
+                printf("%ld ", pT->values[line*cols+j].tensor_long);
+                break;
+            case TENSOR_ULONG:
+                printf("%lu ", pT->values[line*cols+j].tensor_ulong);
+                break;
+            case TENSOR_FLOAT:
+                printf("%g ", pT->values[line*cols+j].tensor_float);    // %g uses shortest of %f (fixed-point notation) and %e (scientific notation)
+                break;
+            case TENSOR_DOUBLE:
+                printf("%lg ", pT->values[line*cols+j].tensor_double);  // %lg uses shortest of %lf and %le (see float)
+                break;
+
+            default:
+                printf("* ");
+                break;
+            }
+        }
+        for (Uint rb = 0; rb < right_brackets; rb++) printf("]");
+        printf("\n");
+    }
+    print_tensor_metadata(pT);
+}
+
+
+
+/**
+ * @brief Print metadata about tensor.
+ * 
+ * Displays shape and datatype.
+ * 
+ * @param pT A pointer to a tensor `Tensor`
+ * 
+ * @return void
+*/
+void print_tensor_metadata(Tensor *pT) {
+    printf("Tensor (%ud) \n", pT->dim);
+    printf(" :shape: "); print_tensor_shape(pT);
+    printf("\n");
+    printf(" :dtype: "); print_tensor_dtype(pT);
+    printf("\n");
+}
+
+
+/**
+ * @brief Print the shape `Uint [dimensionality]` of a tensor.
+ * 
+ * No newline included.
+ * 
+ * @param pT A pointer to a tensor `Tensor`
+ * 
+ * @return void
+*/
+void print_tensor_shape(Tensor *pT) {
+    printf("{");
+    for (Uint axis = 0; axis < pT->dim; axis++) {
+        printf("%u", pT->shape[axis]);
+        if (axis != pT->dim-1) printf(", ");
+    }
+    printf("}");
+}
+
+
+/**
+ * @brief Print the data type `NumberType` of a tensor.
+ * No newline included.
+ * 
+ * @param pT A pointer to a tensor `Tensor`
+ * @return void
+*/
+void print_tensor_dtype(Tensor *pT) {
+    switch (pT->dtype)
+    {
+    case TENSOR_SHORT: printf("short"); break;
+    case TENSOR_USHORT: printf("Ushort (unsigned short)"); break;
+    case TENSOR_INT: printf("int"); break;
+    case TENSOR_UINT: printf("Uint (unsigned int)"); break;
+    case TENSOR_LONG: printf("long"); break;
+    case TENSOR_ULONG: printf("Ulong (unsigned long)"); break;
+    case TENSOR_FLOAT: printf("float"); break;
+    case TENSOR_DOUBLE: printf("double"); break;
+    
+    default: printf("UNKNOWN"); break;
+    }
+}
+
+
+
+
 
 
 /**
@@ -182,220 +363,6 @@ double scalar_pdf_gaussian(double mu, double sigmoid, double x) {
 }
 
 
-/**
- * @brief Cast an integer value `int` to the type `Number`.
- * 
- * Due to the integer being casted as another numeric datatype some precision may be lost.
- * However this is usually safe for smaller integer values (up until 2^12 is safe, even 2^15 for some systems). 
- * 
- * @param value An integer value `int` to be cast to a Number
- * @param dtype The numeric type `NumberType` the integer value should be casted as
- * 
- * @return A number `Number` with the specified value (potentually truncated) of the specified enum NumberType
-*/
-Number cast_int_to_number(int integer_value, NumberType dtype) {
-    Number number;
-    switch (dtype) 
-    {
-        case TENSOR_SHORT: number.tensor_short = (short) integer_value; break;
-        case TENSOR_USHORT: number.tensor_ushort = (Ushort) integer_value; break;
-        case TENSOR_INT: number.tensor_int = integer_value; break;          // no casting needed
-        case TENSOR_UINT: number.tensor_uint = (Uint) integer_value; break;
-        case TENSOR_LONG: number.tensor_long = (long) integer_value; break;
-        case TENSOR_ULONG: number.tensor_ulong = (Ulong) integer_value; break;
-        case TENSOR_FLOAT: number.tensor_float = (float) integer_value; break;
-        case TENSOR_DOUBLE: number.tensor_double = (double) integer_value; break;
-        default: memset(&number, 0, sizeof(number)); break;  
-    }
-
-    return number;
-}
-
-
-
-
-
-
-/**
- * Debugging print for 1d arrays
-*/
-void print_1darray(Uint* array, Uint size) {
-    printf("[ ");
-    for (Uint i = 0; i < size; i++) {
-        printf("%d ", array[i]);
-    }
-    printf("]\n");
-}
-
-
-
-
-/**
- * @brief Print visual representation of tensor.
- * 
- * Brackets denote delimiter for axis.
- * 
- * @param A pointer to a tensor `Tensor`
- * 
- * @return void
- */
-void print_tensor(Tensor *pT) {
-    Uint dim = pT->dimensionality;
-
-    // create cumulative products of of first dim-1 number of shape values
-    // {a, b, c, d} -> {abc, bc, c, 1}  for any dimensionality
-    Uint cumulative_shape[dim];
-    cumulative_shape[dim-1] = 1;        // set last element (for columns) to 1
-
-    for (Uint axis_i = 0; axis_i < dim-1; axis_i++) {                       // for first dim-1 elements
-        cumulative_shape[axis_i] = 1;                                       // initialise cumulative product to 1
-        for (Uint prev_axis = axis_i; prev_axis < dim-1; prev_axis++) {     // cumulative product i is product of elements i to dim-2
-            cumulative_shape[axis_i] *= pT->shape[prev_axis];
-        }
-    }
-
-    // DEBUG PRINT
-    // print_1darray(cumulative_shape, dim);
-
-    const Uint cols = pT->shape[dim-1];
-    const Uint lines = cumulative_shape[0];     // number of lines to print
-    Uint num_brackets[lines];
-
-    // fill num_brackets array
-    for (Uint line = 0; line < lines; line++) {
-        for (Uint axis = 0; axis < dim; axis++) {
-            if (line % cumulative_shape[axis] == 0) {
-                num_brackets[line] = dim-axis;
-                break;                          // break at first found axis
-            }
-        }
-    }
-
-    // DEBUG PRINT
-    // print_1darray(num_brackets, lines);
-    // after building the list of number of brackets for each row printed...
-    // use symmetry of print pattern, ending brackets (on right side) follows same pattern as left ones but in opposite order
-
-    Uint spaces;
-    Uint left_brackets, right_brackets;
-    for (Uint line = 0; line < lines; line++) {
-        left_brackets = num_brackets[line];
-        spaces = dim-left_brackets;
-        right_brackets = num_brackets[lines-1-line];    // begin from other end
-        // line print
-        for (Uint s = 0; s < spaces; s++) printf(" ");
-        for (Uint lb = 0; lb < left_brackets; lb++) printf("[");
-        printf(" ");
-        for (Uint j = 0; j < cols; j++) {
-            switch (pT->dtype)
-            {
-            case TENSOR_SHORT:
-                printf("%hd ", pT->values[line*cols+j].tensor_short);
-                break;
-            case TENSOR_USHORT:
-                printf("%hu ", pT->values[line*cols+j].tensor_ushort);
-                break;
-            case TENSOR_INT:
-                printf("%d ", pT->values[line*cols+j].tensor_int);
-                break;
-            case TENSOR_UINT:
-                printf("%u ", pT->values[line*cols+j].tensor_uint);
-                break;
-            case TENSOR_LONG:
-                printf("%ld ", pT->values[line*cols+j].tensor_long);
-                break;
-            case TENSOR_ULONG:
-                printf("%lu ", pT->values[line*cols+j].tensor_ulong);
-                break;
-            case TENSOR_FLOAT:
-                printf("%g ", pT->values[line*cols+j].tensor_float);    // %g uses shortest of %f (fixed-point notation) and %e (scientific notation)
-                break;
-            case TENSOR_DOUBLE:
-                printf("%lg ", pT->values[line*cols+j].tensor_double);  // %lg uses shortest of %lf and %le (see float)
-                break;
-
-            default:
-                printf("* ");
-                break;
-            }
-        }
-        for (Uint rb = 0; rb < right_brackets; rb++) printf("]");
-        printf("\n");
-    }
-    print_tensor_metadata(pT);
-}
-
-
-
-
-
-
-// print tensor meta data
-
-/**
- * @brief Print metadata about tensor.
- * 
- * Displays shape and datatype.
- * 
- * @param pT A pointer to a tensor `Tensor`
- * 
- * @return void
-*/
-void print_tensor_metadata(Tensor *pT) {
-    printf("Tensor (%ud) \n", pT->dimensionality);
-    printf(" :shape: "); print_tensor_shape(pT);
-    printf("\n");
-    printf(" :dtype: "); print_tensor_dtype(pT);
-    printf("\n");
-}
-
-
-/**
- * @brief Print the shape `Uint [dimensionality]` of a tensor.
- * 
- * No newline included.
- * 
- * @param pT A pointer to a tensor `Tensor`
- * 
- * @return void
-*/
-void print_tensor_shape(Tensor *pT) {
-    printf("{");
-    for (Uint axis = 0; axis < pT->dimensionality; axis++) {
-        printf("%u", pT->shape[axis]);
-        if (axis != pT->dimensionality-1) printf(", ");
-    }
-    printf("}");
-}
-
-
-/**
- * @brief Print the data type `NumberType` of a tensor.
- * 
- * No newline included.
- * 
- * @param pT A pointer to a tensor `Tensor`
- * 
- * @return void
-*/
-void print_tensor_dtype(Tensor *pT) {
-    switch (pT->dtype)
-    {
-    case TENSOR_SHORT: printf("short"); break;
-    case TENSOR_USHORT: printf("Ushort (unsigned short)"); break;
-    case TENSOR_INT: printf("int"); break;
-    case TENSOR_UINT: printf("Uint (unsigned int)"); break;
-    case TENSOR_LONG: printf("long"); break;
-    case TENSOR_ULONG: printf("Ulong (unsigned long)"); break;
-    case TENSOR_FLOAT: printf("float"); break;
-    case TENSOR_DOUBLE: printf("double"); break;
-    
-    default: printf("UNKNOWN"); break;
-    }
-}
-
-
-
 
 // 3d tensor visualisation (2, 2, 3)
 // 
@@ -423,3 +390,34 @@ void print_tensor_dtype(Tensor *pT) {
 //    [4, 5, 6]]]]
 // 
 // cumulative shape products : (12, 4, 2, 3)
+
+
+
+// /**
+//  * @brief Cast an integer value `int` to the type `Number`.
+//  * 
+//  * Due to the integer being casted as another numeric datatype some precision may be lost.
+//  * However this is usually safe for smaller integer values (up until 2^12 is safe, even 2^15 for some systems). 
+//  * 
+//  * @param value An integer value `int` to be cast to a Number
+//  * @param dtype The numeric type `NumberType` the integer value should be casted as
+//  * 
+//  * @return A number `Number` with the specified value (potentually truncated) of the specified enum NumberType
+// */
+// Number cast_int_to_number(int integer_value, NumberType dtype) {
+//     Number number;
+//     switch (dtype) 
+//     {
+//         case TENSOR_SHORT: number.tensor_short = (short) integer_value; break;
+//         case TENSOR_USHORT: number.tensor_ushort = (Ushort) integer_value; break;
+//         case TENSOR_INT: number.tensor_int = integer_value; break;          // no casting needed
+//         case TENSOR_UINT: number.tensor_uint = (Uint) integer_value; break;
+//         case TENSOR_LONG: number.tensor_long = (long) integer_value; break;
+//         case TENSOR_ULONG: number.tensor_ulong = (Ulong) integer_value; break;
+//         case TENSOR_FLOAT: number.tensor_float = (float) integer_value; break;
+//         case TENSOR_DOUBLE: number.tensor_double = (double) integer_value; break;
+//         default: memset(&number, 0, sizeof(number)); break;  
+//     }
+
+//     return number;
+// }

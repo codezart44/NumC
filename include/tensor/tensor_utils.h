@@ -10,8 +10,6 @@
 
 extern double scalar_pdf_gaussian(double mu, double sigmoid, double x);
 
-
-
 extern double scalar_cos(double x);
 extern double scalar_sin(double x);
 
@@ -31,9 +29,10 @@ extern Number cast_int_to_number(int integer_value, NumberType dtype);
 extern void print_tensor_shape(Tensor *pT);
 extern void print_tensor_dtype(Tensor *pT);
 extern void print_tensor_metadata(Tensor *pT);
-extern void print_1darray(Uint* array, Uint size);
+extern void print_tensor_values_1d(Number values[], Uint size);
 extern void print_tensor(Tensor *pT);
 
+extern void print_1d_array(Uint* array, Uint size);
 
 //saving and loading tensors (serializing)
 

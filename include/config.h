@@ -25,8 +25,17 @@
 #define TAYLOR_APPROX_MAX_ITER 20       // maximum number of terms calculated
 #define TAYLOR_APPROX_TOLERANCE 1e-12   // break iteration when term_i becomes smaller than tolerance
 
+typedef enum BinaryOperator {
+    ADDITION,
+    SUBTRACTION,
+    MULTIPLICATION,
+    DIVISION,
+} BinaryOperator;
 
-
+typedef enum {
+    FALSE,
+    TRUE,
+} Boolean;
 
 #define MAXIMUM_LENGTH 1000
 #define MAXIMUM_DIMENSION 5

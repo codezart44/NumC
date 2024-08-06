@@ -48,7 +48,7 @@ typedef enum
  * @param tensor_double Number of type `double`
 */
 typedef union 
-{   
+{
     short tensor_short;
     Ushort tensor_ushort;
     int tensor_int;
@@ -65,7 +65,7 @@ typedef union
  * Can store up to `MAXIMUM_DIMENSION` dimensional arrays with meta data for shape,
  * size, datatype and dimension of the tensor.
  * 
- * @param dimensionality The number of dimensions `Uint` the tensor spans
+ * @param dim The number of dimensions `Uint` the tensor spans
  * @param size The number of values `Uint` stored in the tensor
  * @param shape An array of dimensional lengths `Uint [MAXIMUM_DIMENSIONS]` for the values
  * @param dtype The datatype `NumberType` of the numeric values stored in the tensor
@@ -73,7 +73,7 @@ typedef union
 */
 typedef struct Tensor 
 {   
-    Uint dimensionality;                    // The number of dimensions the tensor spans
+    Uint dim;                    // The number of dimensions the tensor spans
     Uint size;                              // The number of values `NumberValues` stored in the `.values` member
     Uint shape[MAXIMUM_DIMENSION];          // An array of the length the tensor values stretch in each dimension
     NumberType dtype;                       // The datatype of the numeric values stored in the `.values` member

@@ -30,17 +30,19 @@
 */
 void _tensor_init_metadata(Tensor *pT, Uint dimensionality, Uint* shape, NumberType dtype) {
     if (dimensionality > MAXIMUM_DIMENSION) {    // assert allowed dimension 
-        // raise error maximum dimensionality exceeded
+        fprintf(stderr, "Error: Maximum dimensionality exceeded. \n");
+        exit(EXIT_FAILURE);
     }
 
-    pT->dimensionality = dimensionality;
+    pT->dim = dimensionality;
     pT->size = 1;
     pT->dtype = dtype;
 
     // initialise tensor shape and size
     for (Uint axis = 0; axis < dimensionality; axis++) {
         if (shape[axis] <= 0) {
-            // raise error non positive axis
+            fprintf(stderr, "Error: Negative value in shape encountered. \n");
+            exit(EXIT_FAILURE);
         }
         pT->shape[axis] = shape[axis];
         pT->size *= shape[axis];
@@ -105,8 +107,8 @@ void _tensor_init_values_from_single(Tensor *pT, void *pVal) {
  * values for tensor factory functions. Not intended for external use.
 */
 void _tensor_init_values_from_array(Tensor *pT, void* values) {
-    switch ((pT)->dtype)                        
-        {                                       
+    switch ((pT)->dtype)
+        {
         case TENSOR_SHORT:
             for (Uint i = 0; i < (pT)->size; i++) (pT)->values[(i)].tensor_short = ((short*)values)[i]; 
             break;  
